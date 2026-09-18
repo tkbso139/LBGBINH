@@ -100,7 +100,7 @@ export const TimetableManager: React.FC<TimetableManagerProps> = ({
       setEditingSlot({ ...existing });
     } else {
       setEditingSlot({
-        id: `slot-${Date.now()}`,
+        id: `slot-${config.selectedClass}-${day.replace(/\s+/g, '')}-${session}-${period}-${Date.now()}`,
         dayOfWeek: day,
         session,
         period,

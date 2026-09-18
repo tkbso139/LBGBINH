@@ -82,7 +82,10 @@ export default function App() {
       const planGrade = slot.grade || config.selectedGrade;
       const planClass = slot.className || config.selectedClass;
       const planTeacher = slot.teacherName || config.selectedTeacher;
-      const planKey = `${planGrade}-${config.selectedWeek}-${slot.dayOfWeek}-${slot.session}-${slot.period}-${planClass}`;
+      const slotBaseKey = slot.id
+        ? slot.id
+        : `${planGrade}-w${config.selectedWeek}-${slot.dayOfWeek}-${slot.session}-p${slot.period}-${planClass}-${index}`;
+      const planKey = `lp-${slotBaseKey}`;
       
       // Check if user edited this plan before
       if (customPlansMap[planKey]) {
@@ -110,7 +113,15 @@ export default function App() {
           schoolName: config.schoolName,
           campusName: config.campusName,
           className: planClass,
-          teacherName: planTeacher
+          teacherName: planTeacher,
+          integrations: existingSample.integrations.map((item, idx) => ({
+            ...item,
+            id: `${planKey}-int-${idx}`
+          })),
+          activities: existingSample.activities.map((act, idx) => ({
+            ...act,
+            id: `${planKey}-act-${idx + 1}`
+          }))
         };
       }
 
@@ -120,7 +131,7 @@ export default function App() {
       );
 
       const integrations = curMatch?.suggestedIntegrations?.map((item, idx) => ({
-        id: `int-cur-${idx}-${Date.now()}`,
+        id: `int-cur-${planKey}-${idx}`,
         type: item.type,
         code: item.code,
         title: item.type === 'AI' ? 'Tích hợp Trí tuệ nhân tạo (AI)' :
@@ -133,7 +144,7 @@ export default function App() {
         activityLocation: item.location || 'Hoạt động 2 - Khám phá'
       })) || [];
 
-      return generateFullLessonPlan(
+      const fullPlan = generateFullLessonPlan(
         planGrade,
         slot.subject,
         slot.lessonName || `${slot.subject} Tiết ${slot.ppct || slot.period}`,
@@ -147,8 +158,14 @@ export default function App() {
         slot.dayOfWeek,
         slot.session,
         undefined,
-        integrations
+        integrations,
+        planKey
       );
+
+      return {
+        ...fullPlan,
+        id: planKey
+      };
     });
 
     return plans;

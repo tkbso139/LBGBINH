@@ -90,7 +90,7 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
   const handleAddIntegration = (type: IntegrationType) => {
     if (!editedPlan) return;
     const newItem: IntegrationItem = {
-      id: `int-${Date.now()}`,
+      id: `${editedPlan.id}-int-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       type,
       title: type === 'AI' ? 'Tích hợp Trí tuệ nhân tạo (AI)' :
              type === 'NLS' ? 'Tích hợp Năng lực số (CV 3456)' :
@@ -432,9 +432,9 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
                         </div>
 
                         <div className="space-y-1.5">
-                          {activePlan.integrations.map((intg) => (
+                          {activePlan.integrations.map((intg, intgIdx) => (
                             <div
-                              key={intg.id}
+                              key={intg.id || `${activePlan.id}-int-${intgIdx}`}
                               className="p-2 rounded-lg bg-indigo-50/40 border border-indigo-100 flex items-start justify-between gap-2"
                             >
                               <div className="space-y-0.5 flex-1">
@@ -551,7 +551,7 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
                         </thead>
                         <tbody>
                           {activePlan.activities.map((act, actIdx) => (
-                            <React.Fragment key={act.id}>
+                            <React.Fragment key={act.id || `${activePlan.id}-act-${actIdx}`}>
                               {/* Phase Header Row */}
                               <tr className="bg-slate-100 border-t border-b border-slate-300">
                                 <td colSpan={2} className="p-1.5 font-bold text-blue-950 text-xs">

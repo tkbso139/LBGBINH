@@ -456,8 +456,12 @@ export function generateFullLessonPlan(
   dayOfWeek: 'Thứ Hai' | 'Thứ Ba' | 'Thứ Tư' | 'Thứ Năm' | 'Thứ Sáu' = 'Thứ Hai',
   session: 'Sáng' | 'Chiều' = 'Sáng',
   dateStr?: string,
-  selectedIntegrations: IntegrationItem[] = []
+  selectedIntegrations: IntegrationItem[] = [],
+  customId?: string
 ): LessonPlan {
+  // Determine stable, unique base ID
+  const planId = customId || `lp-${grade}-w${week}-${dayOfWeek.replace(/\s+/g, '')}-${session}-p${periodInWeek}-${className}`;
+
   // Check if exists in sample
   const existing = SAMPLE_LESSON_PLANS.find(
     p => p.grade === grade && p.subject === subject && (p.lessonName.includes(lessonName) || lessonName.includes(p.lessonName))
@@ -466,6 +470,7 @@ export function generateFullLessonPlan(
   if (existing) {
     return {
       ...existing,
+      id: planId,
       teacherName,
       className,
       schoolName,
@@ -476,7 +481,13 @@ export function generateFullLessonPlan(
       dayOfWeek,
       session,
       dateStr: dateStr || existing.dateStr,
-      integrations: selectedIntegrations.length > 0 ? selectedIntegrations : existing.integrations
+      integrations: selectedIntegrations.length > 0
+        ? selectedIntegrations.map((item, idx) => ({ ...item, id: `${planId}-int-${idx}` }))
+        : existing.integrations.map((item, idx) => ({ ...item, id: `${planId}-int-${idx}` })),
+      activities: existing.activities.map((act, idx) => ({
+        ...act,
+        id: `${planId}-act-${idx + 1}`
+      }))
     };
   }
 
@@ -566,28 +577,28 @@ export function generateFullLessonPlan(
 
   const activities: TeachingActivity[] = [
     {
-      id: `act-dyn-1-${Date.now()}`,
+      id: `${planId}-act-1`,
       phase: 'Khởi động',
       goal: `Tạo tâm thế hào hứng, kích thích sự tò mò và kết nối kiến thức cũ với bài học "${lessonName}".`,
       teacherActivity: act1Teacher,
       studentActivity: act1Student
     },
     {
-      id: `act-dyn-2-${Date.now()}`,
+      id: `${planId}-act-2`,
       phase: 'Khám phá',
       goal: `Học sinh chủ động tìm tòi, tiếp nhận tri thức mới và hình thành kiến thức trọng tâm bài học.`,
       teacherActivity: act2Teacher,
       studentActivity: act2Student
     },
     {
-      id: `act-dyn-3-${Date.now()}`,
+      id: `${planId}-act-3`,
       phase: 'Luyện tập',
       goal: `Củng cố kiến thức vừa học thông qua giải quyết các bài tập, tình huống thực hành cụ thể.`,
       teacherActivity: act3Teacher,
       studentActivity: act3Student
     },
     {
-      id: `act-dyn-4-${Date.now()}`,
+      id: `${planId}-act-4`,
       phase: 'Vận dụng',
       goal: `Vận dụng kiến thức, kĩ năng đã học vào giải quyết tình huống thực tế và liên hệ bản thân.`,
       teacherActivity: act4Teacher,
@@ -596,7 +607,7 @@ export function generateFullLessonPlan(
   ];
 
   return {
-    id: `lp-${grade}-${week}-${Date.now()}`,
+    id: planId,
     grade,
     subject,
     lessonName,
@@ -615,7 +626,10 @@ export function generateFullLessonPlan(
       general: generalCompetency,
       qualities: qualityCompetency
     },
-    integrations: selectedIntegrations,
+    integrations: selectedIntegrations.map((item, idx) => ({
+      ...item,
+      id: `${planId}-int-${idx}`
+    })),
     equipment: {
       teacher: teacherEquipment,
       student: studentEquipment

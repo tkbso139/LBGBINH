@@ -63,7 +63,7 @@ export const UploadTKBModal: React.FC<UploadTKBModalProps> = ({
           const grade = (parseInt(className.charAt(0), 10) || 5) as GradeLevel;
 
           slots.push({
-            id: `custom-slot-${idx}-${Date.now()}`,
+            id: `custom-slot-${className}-${day.replace(/\s+/g, '')}-${session}-${period}-${idx}-${Date.now()}`,
             dayOfWeek: day as any,
             session: session as any,
             period,
