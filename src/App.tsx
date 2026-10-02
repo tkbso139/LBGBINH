@@ -9,8 +9,8 @@ import { UploadTKBModal } from './components/UploadTKBModal';
 import { SettingsModal } from './components/SettingsModal';
 import { IntegrationReferenceModal } from './components/IntegrationReferenceModal';
 import { INITIAL_TIMETABLE_SLOTS, TEACHERS_LIST } from './data/sampleTimetables';
-import { CURRICULUM_DATABASE } from './data/curriculumData';
-import { SAMPLE_LESSON_PLANS, generateFullLessonPlan } from './data/lessonPlansDatabase';
+import { CURRICULUM_DATABASE, getSuggestedIntegrations } from './data/curriculumData';
+import { SAMPLE_LESSON_PLANS, generateFullLessonPlan, buildIntegrationCompetencyText } from './data/lessonPlansDatabase';
 import { getAllSchoolTimetableSlotsForWeek } from './data/schoolMasterSchedule';
 import { exportWeeklyLessonPlansDocx } from './utils/docxExport';
 import { Sparkles, Calendar, FileText, BookOpen, Download, HelpCircle, Layers } from 'lucide-react';
@@ -101,6 +101,10 @@ export default function App() {
       );
 
       if (existingSample) {
+        const sampleIntegrations = existingSample.integrations.map((item, idx) => ({
+          ...item,
+          id: `${planKey}-int-${idx}`
+        }));
         return {
           ...existingSample,
           id: planKey,
@@ -114,10 +118,11 @@ export default function App() {
           campusName: config.campusName,
           className: planClass,
           teacherName: planTeacher,
-          integrations: existingSample.integrations.map((item, idx) => ({
-            ...item,
-            id: `${planKey}-int-${idx}`
-          })),
+          competencies: {
+            ...existingSample.competencies,
+            integration: existingSample.competencies.integration || buildIntegrationCompetencyText(sampleIntegrations)
+          },
+          integrations: sampleIntegrations,
           activities: existingSample.activities.map((act, idx) => ({
             ...act,
             id: `${planKey}-act-${idx + 1}`
@@ -125,12 +130,15 @@ export default function App() {
         };
       }
 
-      // Find suggested integrations from curriculum
-      const curMatch = CURRICULUM_DATABASE.find(
-        (c) => c.grade === planGrade && c.subject === slot.subject && c.week === config.selectedWeek
+      // Find suggested integrations using smart curriculum resolver
+      const suggestedList = getSuggestedIntegrations(
+        planGrade,
+        slot.subject,
+        config.selectedWeek,
+        slot.lessonName
       );
 
-      const integrations = curMatch?.suggestedIntegrations?.map((item, idx) => ({
+      const integrations = suggestedList.map((item, idx) => ({
         id: `int-cur-${planKey}-${idx}`,
         type: item.type,
         code: item.code,
@@ -139,10 +147,12 @@ export default function App() {
                item.type === 'GDDD' ? 'Giáo dục Dinh dưỡng' :
                item.type === 'QCN' ? 'Giáo dục Quyền con người' :
                item.type === 'QPAN' ? 'Giáo dục Quốc phòng - An ninh' :
-               item.type === 'BVMT' ? 'Bảo vệ môi trường' : 'Bài học STEM',
+               item.type === 'BVMT' ? 'Bảo vệ môi trường' :
+               item.type === 'STEM' ? 'Giáo dục STEM' :
+               item.type === 'TTDD_HCM' ? 'Tư tưởng đạo đức Hồ Chí Minh' : 'Học thông qua chơi',
         content: item.content,
         activityLocation: item.location || 'Hoạt động 2 - Khám phá'
-      })) || [];
+      }));
 
       const fullPlan = generateFullLessonPlan(
         planGrade,

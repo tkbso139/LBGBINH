@@ -707,3 +707,234 @@ export const SUBJECT_COLOR_MAP: Record<string, { bg: string; text: string; borde
   'Tăng cường Toán': { bg: 'bg-blue-50/70', text: 'text-blue-800', border: 'border-blue-300', badge: 'bg-blue-200 text-blue-900' },
   'Hoạt động tập thể': { bg: 'bg-slate-100', text: 'text-slate-800', border: 'border-slate-300', badge: 'bg-slate-200 text-slate-900' },
 };
+
+// Smart resolver for suggested integrations across all 35 weeks and all grades/subjects
+export function getSuggestedIntegrations(
+  grade: GradeLevel,
+  subject: string,
+  week: number,
+  lessonName?: string
+): { type: any; code?: string; content: string; location?: string }[] {
+  // 1. Direct match in curriculum database
+  const directMatch = CURRICULUM_DATABASE.find(
+    (c) => c.grade === grade && c.subject === subject && c.week === week
+  );
+  if (directMatch && directMatch.suggestedIntegrations && directMatch.suggestedIntegrations.length > 0) {
+    return directMatch.suggestedIntegrations;
+  }
+
+  // 2. Fallback search by lesson name match if provided
+  if (lessonName) {
+    const nameMatch = CURRICULUM_DATABASE.find(
+      (c) => c.grade === grade && c.subject === subject && (c.lessonName.includes(lessonName) || lessonName.includes(c.lessonName))
+    );
+    if (nameMatch && nameMatch.suggestedIntegrations && nameMatch.suggestedIntegrations.length > 0) {
+      return nameMatch.suggestedIntegrations;
+    }
+  }
+
+  // 3. Fallback search across same grade and subject in CURRICULUM_DATABASE
+  const subjectMatch = CURRICULUM_DATABASE.find(
+    (c) => c.grade === grade && c.subject === subject && c.suggestedIntegrations && c.suggestedIntegrations.length > 0
+  );
+  if (subjectMatch && subjectMatch.suggestedIntegrations) {
+    return subjectMatch.suggestedIntegrations;
+  }
+
+  // 4. Default standards-aligned integrations based on subject and grade
+  switch (subject) {
+    case 'Toán':
+    case 'Tăng cường Toán':
+      return [
+        {
+          type: 'NLS',
+          code: grade >= 3 ? '5.2.CB1a' : '1.3.CB1a',
+          content: 'Sử dụng bảng dữ liệu số hoặc công cụ tương tác trên màn hình để kiểm tra, đối chiếu kết quả tính toán.',
+          location: 'Hoạt động 3 - Luyện tập'
+        },
+        {
+          type: 'AI',
+          code: `${grade}.A1.1`,
+          content: 'Nhận biết AI hỗ trợ xử lý và sắp xếp các phép tính, dữ liệu số nhanh chóng; học sinh tự rèn tư duy tính toán độc lập.',
+          location: 'Hoạt động 2 - Khám phá'
+        }
+      ];
+
+    case 'Tiếng Việt':
+    case 'Tăng cường Tiếng Việt':
+      return [
+        {
+          type: 'QCN',
+          content: 'Học sinh nhận biết quyền được tự do biểu đạt ý kiến, cảm xúc; biết tôn trọng và lắng nghe chia sẻ của bạn bè.',
+          location: 'Hoạt động 1 - Khởi động & Hoạt động 4'
+        },
+        {
+          type: 'NLS',
+          code: '2.1.CB1a',
+          content: 'Biết sử dụng ngôn từ giao tiếp chuẩn mực, lịch sự, tôn trọng người nhận trên cả giao tiếp trực tiếp và môi trường số.',
+          location: 'Hoạt động 4 - Vận dụng'
+        },
+        {
+          type: 'BVMT',
+          content: 'Giáo dục tình yêu cảnh quan thiên nhiên, ý thức giữ gìn vệ sinh lớp học và sân trường sạch đẹp.',
+          location: 'Hoạt động 3 - Luyện tập'
+        }
+      ];
+
+    case 'Đạo đức':
+      return [
+        {
+          type: 'QPAN',
+          content: 'Bồi dưỡng lòng yêu nước, ý thức chấp hành nội quy trường lớp và quy định pháp luật; tự hào về quê hương đất nước.',
+          location: 'Hoạt động 2 - Khám phá'
+        },
+        {
+          type: 'QCN',
+          content: 'Hiểu và thực hiện các quyền và bổn phận của trẻ em; biết yêu thương, giúp đỡ mọi người xung quanh.',
+          location: 'Hoạt động 3 - Luyện tập'
+        },
+        {
+          type: 'TTDD_HCM',
+          content: 'Học tập và làm theo lời dạy của Bác Hồ về tinh thần đoàn kết, chăm ngoan và trung thực.',
+          location: 'Hoạt động 4 - Vận dụng'
+        }
+      ];
+
+    case 'Tự nhiên và Xã hội':
+    case 'Khoa học':
+      return [
+        {
+          type: 'BVMT',
+          content: 'Hình thành ý thức bảo vệ môi trường sống, tiết kiệm nguồn nước, hạn chế rác thải nhựa và yêu quý thiên nhiên.',
+          location: 'Hoạt động 3 - Luyện tập'
+        },
+        {
+          type: 'GDDD',
+          content: 'Hiểu vai trò của chế độ dinh dưỡng và thói quen sinh hoạt lành mạnh đối với sự phát triển thể chất của cơ thể.',
+          location: 'Hoạt động 2 - Khám phá'
+        },
+        {
+          type: 'STEM',
+          content: 'Vận dụng kiến thức khoa học vào thực hành quan sát, làm mô hình trực quan đơn giản.',
+          location: 'Hoạt động 4 - Vận dụng'
+        }
+      ];
+
+    case 'Lịch sử và Địa lí':
+      return [
+        {
+          type: 'QPAN',
+          content: 'Khẳng định chủ quyền toàn vẹn lãnh thổ, giáo dục lòng yêu nước và niềm tự hào về biển đảo quê hương (Hoàng Sa, Trường Sa).',
+          location: 'Hoạt động 2 - Khám phá'
+        },
+        {
+          type: 'NLS',
+          code: '1.1.CB1a',
+          content: 'Khai thác bản đồ số, lược đồ trực quan trên máy tính/màn hình tương tác để xác định vị trí địa lí.',
+          location: 'Hoạt động 3 - Luyện tập'
+        }
+      ];
+
+    case 'Tin học':
+      return [
+        {
+          type: 'NLS',
+          code: grade >= 3 ? '4.2.CB1a' : '4.1.CB1b',
+          content: 'Năng lực số (CV 3456): Thực hành bảo vệ an toàn thông tin cá nhân, tuân thủ quy tắc ứng xử văn minh trên không gian mạng.',
+          location: 'Hoạt động 3 - Luyện tập'
+        },
+        {
+          type: 'AI',
+          code: `${grade}.B1`,
+          content: 'Hiểu AI là công cụ hỗ trợ thông minh, con người giữ vai trò kiểm soát và chịu trách nhiệm với sản phẩm tạo ra.',
+          location: 'Hoạt động 2 - Khám phá'
+        }
+      ];
+
+    case 'Công nghệ':
+      return [
+        {
+          type: 'AI',
+          code: `${grade}.A1.1`,
+          content: 'Nhận biết vai trò của công nghệ tự động hóa và AI trong hỗ trợ đời sống, sản xuất hiện đại.',
+          location: 'Hoạt động 2 - Khám phá'
+        },
+        {
+          type: 'STEM',
+          content: 'Áp dụng quy trình thiết kế kỹ thuật đơn giản để tạo ra sản phẩm đồ dùng học tập sáng tạo.',
+          location: 'Hoạt động 4 - Vận dụng'
+        }
+      ];
+
+    case 'Hoạt động trải nghiệm':
+      return [
+        {
+          type: 'QCN',
+          content: 'Tôn trọng quyền tham gia, quyền được chia sẻ suy nghĩ và cảm xúc trong tập thể lớp; tôn trọng sự khác biệt của bạn bè.',
+          location: 'Hoạt động 2 - Khám phá'
+        },
+        {
+          type: 'GDDD',
+          content: 'Xây dựng nếp sống khoa học, rèn luyện thói quen giữ gìn vệ sinh cá nhân và ăn uống đảm bảo an toàn thực phẩm.',
+          location: 'Hoạt động 3 - Thực hành'
+        }
+      ];
+
+    case 'Giáo dục thể chất':
+      return [
+        {
+          type: 'QPAN',
+          content: 'Rèn luyện tác phong quân sự, tư thế chuẩn mực, tính kỷ luật tập thể và phản xạ nhanh nhẹn theo khẩu lệnh.',
+          location: 'Hoạt động 1 & 3'
+        },
+        {
+          type: 'GDDD',
+          content: 'Hiểu mối quan hệ giữa tập luyện thể thao thường xuyên và bổ sung nước, dưỡng chất để nâng cao sức đề kháng.',
+          location: 'Hoạt động 4 - Vận dụng'
+        }
+      ];
+
+    case 'Mĩ thuật':
+      return [
+        {
+          type: 'BVMT',
+          content: 'Sử dụng các vật liệu tái chế, giấy phế liệu để sáng tạo sản phẩm mĩ thuật xanh, góp phần bảo vệ môi trường.',
+          location: 'Hoạt động 3 - Thực hành'
+        },
+        {
+          type: 'STEM',
+          content: 'Kết hợp yếu tố tạo hình mĩ thuật với kiến thức khoa học, thủ công để tạo ra sản phẩm trang trí độc đáo.',
+          location: 'Hoạt động 4 - Vận dụng'
+        }
+      ];
+
+    case 'Âm nhạc':
+      return [
+        {
+          type: 'QCN',
+          content: 'Học sinh nhận biết quyền được thưởng thức nghệ thuật và bày tỏ cảm xúc thẩm mĩ qua giai điệu âm nhạc.',
+          location: 'Hoạt động 2 - Khám phá'
+        }
+      ];
+
+    case 'Tiếng Anh':
+      return [
+        {
+          type: 'NLS',
+          code: '2.1.CB1a',
+          content: 'Làm quen việc tương tác ngôn ngữ qua thiết bị số, nghe phát âm chuẩn từ phần mềm tiếng Anh.',
+          location: 'Hoạt động 2 - Khám phá'
+        },
+        {
+          type: 'AI',
+          code: `${grade}.A1.1`,
+          content: 'Nhận biết AI hỗ trợ nhận diện giọng nói và hỗ trợ luyện phát âm tiếng Anh cơ bản.',
+          location: 'Hoạt động 3 - Luyện tập'
+        }
+      ];
+
+    default:
+      return [];
+  }
+}
+

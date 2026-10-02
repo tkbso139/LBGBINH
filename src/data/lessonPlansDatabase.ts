@@ -1,5 +1,17 @@
 import { LessonPlan, GradeLevel, TeachingActivity, IntegrationItem } from '../types';
 
+export function buildIntegrationCompetencyText(integrations: IntegrationItem[]): string {
+  if (!integrations || integrations.length === 0) return '';
+  return integrations
+    .map(
+      (intg) =>
+        `- Tích hợp ${intg.title}${intg.code ? ` (${intg.code})` : ''}: ${intg.content}${
+          intg.activityLocation ? ` (Địa chỉ lồng ghép: ${intg.activityLocation})` : ''
+        }`
+    )
+    .join('\n');
+}
+
 export const SAMPLE_LESSON_PLANS: LessonPlan[] = [
   // ==================== LỚP 5A - TUẦN 3 ====================
   // 1. HĐTN 5 - Tiết 7 (PPCT 7)
@@ -20,9 +32,10 @@ export const SAMPLE_LESSON_PLANS: LessonPlan[] = [
     session: 'Sáng',
     dateStr: '21/09/2026',
     competencies: {
-      specific: 'Học sinh tích cực tham gia các hoạt động biểu diễn, trải nghiệm không khí ngày Tết Trung Thu truyền thống, thể hiện tinh thần tập thể, vui vẻ và tự tin.',
+      specific: 'Học sinh tích cực tham gia các hoạt động biểu diễn, trải nghiệm không khí ngày Tết Trung Thu truyền thống, thể hiện tinh thần tập thể, vui vẻ và tự tin.\n* Năng lực thích ứng & kỹ năng sống (tích hợp QCN, GDDD): Nhận biết quyền vui chơi, phát triển của trẻ em; có kỹ năng lựa chọn thực phẩm an toàn vệ sinh.',
       general: 'Phát triển năng lực giao tiếp và hợp tác thông qua việc phối hợp tổ chức lễ hội; năng lực tự chủ khi chuẩn bị tiết mục.',
-      qualities: 'Nhân ái, trách nhiệm, tôn trọng các nét đẹp văn hóa truyền thống của quê hương.'
+      qualities: 'Nhân ái, trách nhiệm, tôn trọng các nét đẹp văn hóa truyền thống của quê hương; có ý thức giữ gìn vệ sinh an toàn thực phẩm (GDDD).',
+      integration: '- Tích hợp Giáo dục Quyền con người (QCN): HS nhận biết quyền được vui chơi, tham gia các hoạt động văn hóa nghệ thuật của thiếu nhi. (Địa chỉ lồng ghép: Hoạt động 1 & 3)\n- Tích hợp Giáo dục Dinh dưỡng & An toàn thực phẩm (GDDD): Tìm hiểu về nguồn gốc bánh Trung thu, bảo quản mâm cỗ đảm bảo vệ sinh an toàn thực phẩm. (Địa chỉ lồng ghép: Hoạt động 2 - Khám phá)'
     },
     integrations: [
       {
@@ -95,9 +108,10 @@ export const SAMPLE_LESSON_PLANS: LessonPlan[] = [
     session: 'Sáng',
     dateStr: '21/09/2026',
     competencies: {
-      specific: 'Đọc đúng, trôi chảy và bước đầu biết đọc diễn cảm bài thơ "Tiếng hạt nảy mầm". Hiểu nội dung, thông điệp ý nghĩa: Lắng nghe và thấu cảm với những điều kỳ diệu xung quanh và thế giới tinh tế của trẻ em.',
+      specific: 'Đọc đúng, trôi chảy và bước đầu biết đọc diễn cảm bài thơ "Tiếng hạt nảy mầm". Hiểu nội dung, thông điệp ý nghĩa: Lắng nghe và thấu cảm với những điều kỳ diệu xung quanh và thế giới tinh tế của trẻ em.\n* Năng lực tích hợp (AI - 5.A1.2): Bước đầu nhận biết ứng dụng công nghệ/AI trong việc quan sát, theo dõi sự nảy mầm và phát triển của cây trồng.',
       general: 'Năng lực tự chủ và tự học thông qua luyện đọc cá nhân; năng lực giải quyết vấn đề qua trả lời câu hỏi đọc hiểu.',
-      qualities: 'Nhân ái, biết trân trọng cuộc sống và thế giới thiên nhiên.'
+      qualities: 'Nhân ái, biết trân trọng cuộc sống; có ý thức bảo vệ môi trường sinh thái và chăm sóc cây xanh xung quanh (BVMT).',
+      integration: '- Tích hợp Bảo vệ môi trường sinh thái (BVMT): Cảm nhận sự sống nảy nở từ hạt mầm, nuôi dưỡng tình yêu thiên nhiên và ý thức chăm sóc cây trồng. (Địa chỉ lồng ghép: Hoạt động 3 - Luyện tập)\n- Tích hợp Trí tuệ nhân tạo (AI - 5.A1.2): HS nhận biết ứng dụng AI trong nông nghiệp công nghệ cao (theo dõi độ ẩm, nhận biết hạt nảy mầm qua camera), hiểu con người luôn là trung tâm chăm sóc sự sống. (Địa chỉ lồng ghép: Hoạt động 4 - Vận dụng)'
     },
     integrations: [
       {
@@ -171,9 +185,10 @@ export const SAMPLE_LESSON_PLANS: LessonPlan[] = [
     session: 'Sáng',
     dateStr: '21/09/2026',
     competencies: {
-      specific: 'Học sinh củng cố kiến thức về đại từ xưng hô, đại từ chỉ định; biết cách tìm và sử dụng đại từ đúng ngữ cảnh trong văn bản đọc viết.',
+      specific: 'Học sinh củng cố kiến thức về đại từ xưng hô, đại từ chỉ định; biết cách tìm và sử dụng đại từ đúng ngữ cảnh trong văn bản đọc viết.\n* Năng lực số (NLS - 2.1.CB1a): Sử dụng đại từ xưng hô lịch sự, tôn trọng người nhận khi giao tiếp qua tin nhắn hoặc diễn đàn trực tuyến.',
       general: 'Năng lực giao tiếp ngôn ngữ mạch lạc; năng lực tự học và giải quyết bài tập cá nhân.',
-      qualities: 'Chăm chỉ rèn luyện từ ngữ tiếng Việt; trung thực trong làm bài tập.'
+      qualities: 'Chăm chỉ rèn luyện từ ngữ tiếng Việt; trung thực trong làm bài tập.',
+      integration: '- Tích hợp Năng lực số: Giao tiếp chuẩn mực (NLS - 2.1.CB1a): HS sử dụng đại từ xưng hô lịch sự, tôn trọng người nhận khi giao tiếp qua tin nhắn hoặc diễn đàn trực tuyến. (Địa chỉ lồng ghép: Hoạt động 4 - Vận dụng)'
     },
     integrations: [
       {
@@ -239,9 +254,10 @@ export const SAMPLE_LESSON_PLANS: LessonPlan[] = [
     session: 'Sáng',
     dateStr: '21/09/2026',
     competencies: {
-      specific: 'Học sinh hiểu và thực hiện được quy trình cộng, trừ hai phân số khác mẫu số bằng cách quy đồng mẫu số rồi thực hiện phép tính.',
+      specific: 'Học sinh hiểu và thực hiện được quy trình cộng, trừ hai phân số khác mẫu số bằng cách quy đồng mẫu số rồi thực hiện phép tính.\n* Năng lực tích hợp (AI & NLS): Hiểu quy trình thuật toán tuần tự tương tự cách thức xử lý của AI (AI - 5.C4.1); sử dụng công cụ kiểm tra số học tương tác để kiểm chứng kết quả (NLS - 5.2.CB1a).',
       general: 'Phát triển năng lực tư duy toán học và năng lực giải quyết vấn đề toán học thực tiễn.',
-      qualities: 'Cẩn thận, chính xác trong tính toán, chăm chỉ làm bài tập toán học.'
+      qualities: 'Cẩn thận, chính xác trong tính toán, chăm chỉ làm bài tập toán học.',
+      integration: '- Tích hợp Trí tuệ nhân tạo (AI - 5.C4.1): HS hiểu quy trình tuần tự của thuật toán quy đồng mẫu số (Tìm MSC -> Nhân thừa số phụ -> Cộng tử số). (Địa chỉ lồng ghép: Hoạt động 2 - Khám phá)\n- Tích hợp Năng lực số (NLS - 5.2.CB1a): HS sử dụng công cụ kiểm tra số học trên màn hình tương tác để kiểm tra lại bài làm. (Địa chỉ lồng ghép: Hoạt động 3 - Luyện tập)'
     },
     integrations: [
       {
@@ -316,8 +332,9 @@ export const SAMPLE_LESSON_PLANS: LessonPlan[] = [
     dateStr: '21/09/2026',
     competencies: {
       specific: 'Học sinh trình bày được các biện pháp bảo vệ môi trường đất, chống xói mòn và ô nhiễm đất trong nông nghiệp và đời sống sinh hoạt.',
-      general: 'Năng lực giải quyết vấn đề qua đề xuất các giải pháp bảo vệ đất đai địa phương.',
-      qualities: 'Trách nhiệm bảo vệ môi trường xung quanh, có ý thức tiết kiệm tài nguyên.'
+      general: 'Năng lực giải quyết vấn đề qua đề xuất các giải pháp bảo vệ đất đai địa phương; năng lực hợp tác nhóm trong khảo sát mô hình.',
+      qualities: 'Trách nhiệm bảo vệ môi trường xung quanh (BVMT), có ý thức tiết kiệm tài nguyên và giữ gìn môi trường sống bền vững; phát triển tư duy thực hành STEM.',
+      integration: '- Tích hợp Bảo vệ môi trường đất (BVMT): Tuyên truyền sử dụng phân bón hữu cơ, không vứt rác thải nhựa khó phân hủy ra đất vườn. (Địa chỉ lồng ghép: Hoạt động 3 & 4)\n- Tích hợp Mô hình bậc thang chống xói mòn (STEM): Vận dụng kiến thức khoa học làm mô hình đất dốc có cỏ để thấy rõ tác dụng giữ đất của rễ cây. (Địa chỉ lồng ghép: Hoạt động 2 - Khám phá)'
     },
     integrations: [
       {
@@ -389,9 +406,10 @@ export const SAMPLE_LESSON_PLANS: LessonPlan[] = [
     session: 'Chiều',
     dateStr: '21/09/2026',
     competencies: {
-      specific: 'Học sinh bước đầu hiểu khái niệm nhà sáng chế, nhận biết được vai trò và một số đóng góp to lớn của các nhà sáng chế nổi tiếng trong lịch sử nhân loại.',
+      specific: 'Học sinh bước đầu hiểu khái niệm nhà sáng chế, nhận biết được vai trò và một số đóng góp to lớn của các nhà sáng chế nổi tiếng trong lịch sử nhân loại.\n* Năng lực tích hợp (AI - 5.C2.1): Nhận biết các nhà khoa học máy tính và kỹ sư AI đang sáng tạo các giải pháp thông minh phục vụ cuộc sống con người.',
       general: 'Năng lực giải quyết vấn đề và sáng tạo; năng lực tự tìm hiểu thông tin qua bài đọc.',
-      qualities: 'Chăm chỉ, đam mê khám phá khoa học kỹ thuật.'
+      qualities: 'Chăm chỉ, đam mê khám phá khoa học kỹ thuật và công nghệ hiện đại.',
+      integration: '- Tích hợp Trí tuệ nhân tạo (AI - 5.C2.1): Nhận biết các nhà khoa học máy tính và kĩ sư AI đang sáng chế các hệ thống máy thông minh phục vụ con người. (Địa chỉ lồng ghép: Hoạt động 4 - Vận dụng)'
     },
     integrations: [
       {
@@ -468,6 +486,24 @@ export function generateFullLessonPlan(
   );
 
   if (existing) {
+    const finalIntegrations = selectedIntegrations.length > 0
+      ? selectedIntegrations.map((item, idx) => ({ ...item, id: `${planId}-int-${idx}` }))
+      : existing.integrations.map((item, idx) => ({ ...item, id: `${planId}-int-${idx}` }));
+
+    let spec = existing.competencies.specific;
+    let qual = existing.competencies.qualities;
+    const integText = existing.competencies.integration || buildIntegrationCompetencyText(finalIntegrations);
+
+    // Make sure specific & qualities also include the integration content if not yet appended
+    const techInts = finalIntegrations.filter(i => ['NLS', 'AI', 'STEM'].includes(i.type));
+    if (techInts.length > 0 && !spec.includes('Năng lực tích hợp')) {
+      spec += `\n* Năng lực tích hợp (NLS, AI, STEM): ${techInts.map(i => `${i.title}${i.code ? ` (${i.code})` : ''}: ${i.content}`).join('; ')}`;
+    }
+    const moralInts = finalIntegrations.filter(i => ['QCN', 'QPAN', 'BVMT', 'GDDD', 'TTDD_HCM'].includes(i.type));
+    if (moralInts.length > 0 && !qual.includes('Phẩm chất tích hợp')) {
+      qual += `\n* Phẩm chất tích hợp (QCN, QPAN, BVMT, GDDD): ${moralInts.map(i => `${i.title}: ${i.content}`).join('; ')}`;
+    }
+
     return {
       ...existing,
       id: planId,
@@ -481,9 +517,13 @@ export function generateFullLessonPlan(
       dayOfWeek,
       session,
       dateStr: dateStr || existing.dateStr,
-      integrations: selectedIntegrations.length > 0
-        ? selectedIntegrations.map((item, idx) => ({ ...item, id: `${planId}-int-${idx}` }))
-        : existing.integrations.map((item, idx) => ({ ...item, id: `${planId}-int-${idx}` })),
+      competencies: {
+        ...existing.competencies,
+        specific: spec,
+        qualities: qual,
+        integration: integText
+      },
+      integrations: finalIntegrations,
       activities: existing.activities.map((act, idx) => ({
         ...act,
         id: `${planId}-act-${idx + 1}`
@@ -606,6 +646,28 @@ export function generateFullLessonPlan(
     }
   ];
 
+  // Enrich competencies with integrated content if present
+  let integrationCompetencyText = '';
+  if (selectedIntegrations && selectedIntegrations.length > 0) {
+    integrationCompetencyText = buildIntegrationCompetencyText(selectedIntegrations);
+
+    const techInts = selectedIntegrations.filter((i) => ['NLS', 'AI', 'STEM'].includes(i.type));
+    if (techInts.length > 0 && !specificCompetency.includes('Năng lực tích hợp')) {
+      specificCompetency += `\n* Năng lực tích hợp (NLS, AI, STEM): ${techInts
+        .map((i) => `${i.title}${i.code ? ` (${i.code})` : ''}: ${i.content}`)
+        .join('; ')}`;
+    }
+
+    const moralInts = selectedIntegrations.filter((i) =>
+      ['QCN', 'QPAN', 'BVMT', 'GDDD', 'TTDD_HCM'].includes(i.type)
+    );
+    if (moralInts.length > 0 && !qualityCompetency.includes('Phẩm chất tích hợp')) {
+      qualityCompetency += `\n* Phẩm chất tích hợp (QCN, QPAN, BVMT, GDDD): ${moralInts
+        .map((i) => `${i.title}: ${i.content}`)
+        .join('; ')}`;
+    }
+  }
+
   return {
     id: planId,
     grade,
@@ -624,7 +686,8 @@ export function generateFullLessonPlan(
     competencies: {
       specific: specificCompetency,
       general: generalCompetency,
-      qualities: qualityCompetency
+      qualities: qualityCompetency,
+      integration: integrationCompetencyText
     },
     integrations: selectedIntegrations.map((item, idx) => ({
       ...item,

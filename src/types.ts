@@ -51,6 +51,7 @@ export interface LessonPlan {
     specific: string; // Năng lực đặc thù
     general: string;  // Năng lực chung
     qualities: string; // Phẩm chất
+    integration?: string; // Yêu cầu cần đạt về nội dung tích hợp
   };
   
   // Integrations

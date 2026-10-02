@@ -246,17 +246,26 @@ export async function exportWeeklyLessonPlansDocx(
       new Paragraph({
         spacing: { before: 80, after: 40 },
         children: [
-          new TextRun({ text: 'I. YÊU CẦU CẦN ĐẠT', bold: true, size: halfPoints, color: '003366', font: 'Times New Roman' }),
+          new TextRun({ text: 'I. YÊU CẦU CẦN ĐẠT:', bold: true, size: halfPoints, color: '003366', font: 'Times New Roman' }),
         ],
       })
     );
 
+    const specLines = (plan.competencies.specific || '').split('\n').filter(Boolean);
     docChildren.push(
       new Paragraph({
         spacing: { after: 40 },
         children: [
           new TextRun({ text: '1. Năng lực đặc thù: ', bold: true, size: halfPoints, font: 'Times New Roman' }),
-          new TextRun({ text: plan.competencies.specific, size: halfPoints, font: 'Times New Roman' }),
+          ...specLines.map((line, lIdx) =>
+            new TextRun({
+              text: line,
+              size: halfPoints,
+              font: 'Times New Roman',
+              break: lIdx > 0 ? 1 : 0,
+              bold: line.startsWith('* Năng lực tích hợp')
+            })
+          ),
         ],
       })
     );
@@ -271,12 +280,21 @@ export async function exportWeeklyLessonPlansDocx(
       })
     );
 
+    const qualLines = (plan.competencies.qualities || '').split('\n').filter(Boolean);
     docChildren.push(
       new Paragraph({
         spacing: { after: 40 },
         children: [
           new TextRun({ text: '3. Phẩm chất: ', bold: true, size: halfPoints, font: 'Times New Roman' }),
-          new TextRun({ text: plan.competencies.qualities, size: halfPoints, font: 'Times New Roman' }),
+          ...qualLines.map((line, lIdx) =>
+            new TextRun({
+              text: line,
+              size: halfPoints,
+              font: 'Times New Roman',
+              break: lIdx > 0 ? 1 : 0,
+              bold: line.startsWith('* Phẩm chất tích hợp')
+            })
+          ),
         ],
       })
     );
@@ -284,9 +302,9 @@ export async function exportWeeklyLessonPlansDocx(
     if (plan.integrations && plan.integrations.length > 0) {
       docChildren.push(
         new Paragraph({
-          spacing: { after: 40 },
+          spacing: { before: 40, after: 40 },
           children: [
-            new TextRun({ text: '4. Nội dung tích hợp lồng ghép:', bold: true, size: halfPoints, font: 'Times New Roman' }),
+            new TextRun({ text: '4. Yêu cầu cần đạt về nội dung tích hợp (Lồng ghép giáo dục):', bold: true, size: halfPoints, font: 'Times New Roman' }),
           ],
         })
       );
@@ -297,7 +315,7 @@ export async function exportWeeklyLessonPlansDocx(
             spacing: { after: 30 },
             bullet: { level: 0 },
             children: [
-              new TextRun({ text: `[${intg.type}${intg.code ? ` - ${intg.code}` : ''}] ${intg.title}: `, bold: true, size: halfPoints, font: 'Times New Roman' }),
+              new TextRun({ text: `+ Tích hợp ${intg.title}${intg.code ? ` (${intg.code})` : ''}: `, bold: true, size: halfPoints, font: 'Times New Roman' }),
               new TextRun({ text: `${intg.content} ${intg.activityLocation ? `(Địa chỉ lồng ghép: ${intg.activityLocation})` : ''}`, size: halfPoints, font: 'Times New Roman' }),
             ],
           })

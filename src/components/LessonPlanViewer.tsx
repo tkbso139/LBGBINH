@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { exportWeeklyLessonPlansDocx } from '../utils/docxExport';
 import { SUBJECT_COLOR_MAP } from '../data/curriculumData';
+import { buildIntegrationCompetencyText } from '../data/lessonPlansDatabase';
 
 interface LessonPlanViewerProps {
   lessonPlans: LessonPlan[];
@@ -97,22 +98,55 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
              type === 'GDDD' ? 'Giáo dục Dinh dưỡng' :
              type === 'QCN' ? 'Giáo dục Quyền con người' :
              type === 'QPAN' ? 'Giáo dục Quốc phòng - An ninh' :
-             type === 'BVMT' ? 'Bảo vệ môi trường' : 'Bài học STEM',
-      content: 'Nội dung tích hợp lồng ghép phù hợp với yêu cầu cần đạt của bài dạy.',
+             type === 'BVMT' ? 'Bảo vệ môi trường' :
+             type === 'STEM' ? 'Bài học STEM' :
+             type === 'TTDD_HCM' ? 'Tư tưởng đạo đức Hồ Chí Minh' : 'Học thông qua chơi',
+      content: type === 'AI' ? 'HS nhận biết ứng dụng AI hỗ trợ học tập, con người làm chủ và kiểm chứng kết quả.' :
+               type === 'NLS' ? 'HS biết sử dụng công cụ số an toàn, khai thác thông tin và tương tác chuẩn mực trên môi trường số.' :
+               type === 'QCN' ? 'HS nhận thức quyền và bổn phận của trẻ em, tôn trọng sự bình đẳng và chia sẻ cảm xúc.' :
+               type === 'QPAN' ? 'Bồi dưỡng tình yêu quê hương đất nước, biển đảo và tác phong kỉ luật nghiêm túc.' :
+               type === 'GDDD' ? 'Hiểu vai trò của chế độ dinh dưỡng lành mạnh và vệ sinh an toàn thực phẩm.' :
+               type === 'BVMT' ? 'Hình thành ý thức bảo vệ cảnh quan thiên nhiên, giữ sạch lớp học và sân trường.' :
+               'Vận dụng kiến thức liên môn giải quyết vấn đề sáng tạo.',
       activityLocation: 'Hoạt động 3 - Luyện tập'
     };
 
+    const updatedIntegrations = [...editedPlan.integrations, newItem];
+    const updatedIntegText = buildIntegrationCompetencyText(updatedIntegrations);
+
+    let updatedSpecific = editedPlan.competencies.specific;
+    let updatedQualities = editedPlan.competencies.qualities;
+
+    if (['NLS', 'AI', 'STEM'].includes(type) && !updatedSpecific.includes(newItem.title)) {
+      updatedSpecific += `\n* Năng lực tích hợp (${type}): ${newItem.content}`;
+    }
+    if (['QCN', 'QPAN', 'BVMT', 'GDDD', 'TTDD_HCM'].includes(type) && !updatedQualities.includes(newItem.title)) {
+      updatedQualities += `\n* Phẩm chất tích hợp (${type}): ${newItem.content}`;
+    }
+
     setEditedPlan({
       ...editedPlan,
-      integrations: [...editedPlan.integrations, newItem]
+      competencies: {
+        ...editedPlan.competencies,
+        specific: updatedSpecific,
+        qualities: updatedQualities,
+        integration: updatedIntegText
+      },
+      integrations: updatedIntegrations
     });
   };
 
   const handleRemoveIntegration = (intId: string) => {
     if (!editedPlan) return;
+    const updatedIntegrations = editedPlan.integrations.filter((i) => i.id !== intId);
+    const updatedIntegText = buildIntegrationCompetencyText(updatedIntegrations);
     setEditedPlan({
       ...editedPlan,
-      integrations: editedPlan.integrations.filter((i) => i.id !== intId)
+      competencies: {
+        ...editedPlan.competencies,
+        integration: updatedIntegText
+      },
+      integrations: updatedIntegrations
     });
   };
 
@@ -361,11 +395,20 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
                                 competencies: { ...activePlan.competencies, specific: e.target.value }
                               })
                             }
-                            rows={2}
+                            rows={3}
                             className="w-full text-xs p-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
                           />
                         ) : (
-                          <p className="text-slate-700 leading-relaxed text-[11px]">{activePlan.competencies.specific}</p>
+                          <div className="space-y-1 text-slate-700 text-[11px] leading-relaxed">
+                            {activePlan.competencies.specific.split('\n').map((line, lIdx) => (
+                              <p
+                                key={lIdx}
+                                className={line.startsWith('* Năng lực tích hợp') ? 'font-semibold text-indigo-900 bg-indigo-50/60 p-1 rounded border border-indigo-100' : ''}
+                              >
+                                {line}
+                              </p>
+                            ))}
+                          </div>
                         )}
                       </div>
 
@@ -399,20 +442,29 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
                                 competencies: { ...activePlan.competencies, qualities: e.target.value }
                               })
                             }
-                            rows={2}
+                            rows={3}
                             className="w-full text-xs p-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
                           />
                         ) : (
-                          <p className="text-slate-700 leading-relaxed text-[11px]">{activePlan.competencies.qualities}</p>
+                          <div className="space-y-1 text-slate-700 text-[11px] leading-relaxed">
+                            {activePlan.competencies.qualities.split('\n').map((line, lIdx) => (
+                              <p
+                                key={lIdx}
+                                className={line.startsWith('* Phẩm chất tích hợp') ? 'font-semibold text-emerald-900 bg-emerald-50/60 p-1 rounded border border-emerald-100' : ''}
+                              >
+                                {line}
+                              </p>
+                            ))}
+                          </div>
                         )}
                       </div>
 
                       {/* Integrations Section */}
-                      <div className="pt-1.5">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <strong className="text-slate-800 font-bold flex items-center text-[11px]">
-                            <Tag className="w-3 h-3 text-indigo-600 mr-1" />
-                            4. Nội dung tích hợp & lồng ghép ({activePlan.integrations.length} nội dung):
+                      <div className="pt-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2">
+                          <strong className="text-indigo-950 font-bold flex items-center text-[11px]">
+                            <Tag className="w-3.5 h-3.5 text-indigo-600 mr-1.5" />
+                            4. Yêu cầu cần đạt về nội dung tích hợp (Lồng ghép giáo dục) ({activePlan.integrations.length} nội dung):
                           </strong>
 
                           {isEditing && (
@@ -422,30 +474,51 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
                                   key={type}
                                   type="button"
                                   onClick={() => handleAddIntegration(type)}
-                                  className="text-[9px] font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded border border-indigo-200"
+                                  className="text-[9px] font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded border border-indigo-200 transition-colors shadow-2xs"
                                 >
-                                  + {type}
+                                  + Thêm {type}
                                 </button>
                               ))}
                             </div>
                           )}
                         </div>
 
+                        {/* Optional direct edit of integrated competency text */}
+                        {isEditing && (
+                          <div className="mb-2 p-2 bg-indigo-50/30 rounded-lg border border-indigo-200">
+                            <span className="text-[10px] font-bold text-indigo-900 block mb-1">
+                              Tổng hợp yêu cầu cần đạt nội dung tích hợp (sẽ xuất ra file Word):
+                            </span>
+                            <textarea
+                              value={activePlan.competencies.integration || ''}
+                              onChange={(e) =>
+                                setEditedPlan({
+                                  ...activePlan,
+                                  competencies: { ...activePlan.competencies, integration: e.target.value }
+                                })
+                              }
+                              rows={3}
+                              className="w-full text-xs p-1.5 border border-indigo-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+                              placeholder="- Tích hợp NLS: ...&#10;- Tích hợp AI: ..."
+                            />
+                          </div>
+                        )}
+
                         <div className="space-y-1.5">
                           {activePlan.integrations.map((intg, intgIdx) => (
                             <div
                               key={intg.id || `${activePlan.id}-int-${intgIdx}`}
-                              className="p-2 rounded-lg bg-indigo-50/40 border border-indigo-100 flex items-start justify-between gap-2"
+                              className="p-2.5 rounded-lg bg-indigo-50/40 border border-indigo-100 hover:border-indigo-300 transition-all flex items-start justify-between gap-2 shadow-2xs"
                             >
-                              <div className="space-y-0.5 flex-1">
-                                <div className="flex items-center space-x-1.5">
-                                  <span className="text-[9px] font-bold bg-indigo-600 text-white px-1.5 py-0.2 rounded font-mono">
+                              <div className="space-y-1 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="text-[9px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded font-mono shadow-2xs">
                                     {intg.type} {intg.code ? `• ${intg.code}` : ''}
                                   </span>
-                                  <span className="font-bold text-slate-800 text-xs">{intg.title}</span>
+                                  <span className="font-bold text-slate-900 text-xs">{intg.title}</span>
                                   {intg.activityLocation && (
-                                    <span className="text-[9px] text-slate-500 italic bg-white px-1 py-0.2 rounded border border-slate-200">
-                                      {intg.activityLocation}
+                                    <span className="text-[9px] text-indigo-700 font-medium bg-white px-1.5 py-0.5 rounded border border-indigo-200">
+                                      Địa chỉ: {intg.activityLocation}
                                     </span>
                                   )}
                                 </div>
@@ -457,13 +530,23 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
                                       const updated = activePlan.integrations.map((item) =>
                                         item.id === intg.id ? { ...item, content: e.target.value } : item
                                       );
-                                      setEditedPlan({ ...activePlan, integrations: updated });
+                                      setEditedPlan({
+                                        ...activePlan,
+                                        integrations: updated,
+                                        competencies: {
+                                          ...activePlan.competencies,
+                                          integration: buildIntegrationCompetencyText(updated)
+                                        }
+                                      });
                                     }}
                                     rows={2}
-                                    className="w-full text-xs p-1 border border-slate-300 rounded bg-white mt-0.5"
+                                    className="w-full text-xs p-1.5 border border-slate-300 rounded bg-white mt-0.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                                   />
                                 ) : (
-                                  <p className="text-slate-700 text-[11px] leading-relaxed">{intg.content}</p>
+                                  <p className="text-slate-700 text-[11px] leading-relaxed font-normal pl-0.5">
+                                    <strong className="text-indigo-900 font-semibold">Yêu cầu cần đạt: </strong>
+                                    {intg.content}
+                                  </p>
                                 )}
                               </div>
 
@@ -471,17 +554,28 @@ export const LessonPlanViewer: React.FC<LessonPlanViewerProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveIntegration(intg.id)}
-                                  className="text-rose-500 hover:text-rose-700 p-0.5"
-                                  title="Xóa tích hợp"
+                                  className="text-rose-500 hover:text-rose-700 p-1 hover:bg-rose-50 rounded"
+                                  title="Xóa nội dung tích hợp này"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               )}
                             </div>
                           ))}
 
                           {activePlan.integrations.length === 0 && (
-                            <p className="text-slate-400 italic text-[11px]">Chưa có nội dung tích hợp nào cho tiết này.</p>
+                            <div className="p-3 bg-amber-50/60 rounded-lg border border-amber-200 flex items-center justify-between text-[11px] text-amber-800">
+                              <span>Bài dạy này hiện chưa có nội dung tích hợp. Thầy/Cô có thể bấm "Sửa Bài" để bổ sung nội dung tích hợp (NLS, AI, QCN, QPAN, GDDD, BVMT, STEM) vào Yêu cầu cần đạt.</span>
+                              {!isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEdit(plan)}
+                                  className="ml-2 px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded font-bold text-[10px] flex-shrink-0"
+                                >
+                                  + Thêm tích hợp
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
